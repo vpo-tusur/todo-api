@@ -3,6 +3,7 @@
 
 ## Как внести свой вклад в проект
 [Инструкции по установке](./docs/contributing.md)
+[Описание архитектуры](docs/architecture.md)
 
 ## Лицензия
 © Apache 2.0 License

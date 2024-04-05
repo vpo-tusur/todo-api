@@ -10,6 +10,7 @@ virtual_env = "env"
 pythonpath = [
   "."
 ]
+
 testpaths = [
   "__tests__"
 ]
