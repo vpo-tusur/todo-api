@@ -4,6 +4,7 @@ line-length = 60
 [tool.isort]
 profile = "black"
 src_paths = ["configs", "models", "repositories", "routers", "schemas", "services"]
+line_length = 60
 virtual_env = "env"
 
 [tool.pytest.ini_options]
