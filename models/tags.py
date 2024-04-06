@@ -1,6 +1,6 @@
 tags = [
     {
         "name": "task",
-        "description": "CRUD operations on Tasks",
+        "description": "Управление задачами",
     }
 ]

@@ -1,1 +1,3 @@
-# Project uses pydantic schemas for declaring DTOs.
+# Схемы DTO.
+# В проекте используется Pydantic для описания схем DTO.
+# https://docs.pydantic.dev/latest/concepts/

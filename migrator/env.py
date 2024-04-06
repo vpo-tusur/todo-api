@@ -2,15 +2,16 @@ from logging.config import fileConfig
 
 from alembic import context
 
-from models.base_model import entity_meta
 from configs.database import engine
+from models import *
+from models.base_model import BaseModel
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-target_metadata = entity_meta.metadata
+target_metadata = BaseModel.metadata
 
 
 def run_migrations_online() -> None:

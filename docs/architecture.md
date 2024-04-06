@@ -51,7 +51,6 @@ $ alembic revision --autogenerate -m "<comment>"
 
 Регистрация хуков:
 ```shell
-$ pipenv run pre-commit
 $ pipenv run pre-commit install
 ```
 
@@ -91,7 +90,7 @@ $ pipenv run pytest --cov-report xml --cov .
 
 Зависимости и прочее:
 - `configs` - настройки сервиса
-- `migrator` - утилита миграции `alebic`
+- `migrator` - утилита миграции `alembic`
   - `versions` - миграции базы данных
   - `todo-api.sqlite` - база данных проекта
 - `docs` - документация проекта
