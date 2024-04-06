@@ -1,1 +1,2 @@
-# Project uses SQLAlchemy for querying database.
+# Репозитории данных.
+# В проекте используется SQLAlchemy и Alambic для работы с БД и ORM.
