@@ -26,6 +26,10 @@ jobs:
         python -m pip install pip
         pip install --user pipenv
         pipenv install --dev
+    - name: Lint checks
+      run: |
+        pipenv run isort .
+        pipenv run black .
     - name: Test with Pytest
       run: |
         pipenv run pytest
