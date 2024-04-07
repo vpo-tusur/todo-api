@@ -31,7 +31,7 @@ def upgrade() -> None:
             sa.String(length=256),
             nullable=True,
         ),
-        sa.Column("due_date", sa.Date(), nullable=True),
+        sa.Column("due_date", sa.Date(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###

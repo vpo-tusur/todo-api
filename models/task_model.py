@@ -15,6 +15,6 @@ class Task(BaseModel):
     id = Column(Integer)
     title = Column(String(256), nullable=False)
     description = Column(String(256))
-    due_date = Column(Date)
+    due_date = Column(Date, nullable=False)
 
     PrimaryKeyConstraint(id)
