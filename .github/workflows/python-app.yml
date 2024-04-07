@@ -28,8 +28,7 @@ jobs:
         pipenv install --dev
     - name: Lint checks
       run: |
-        pipenv run isort .
-        pipenv run black .
+        pipenv run pre-commit run --all-files
     - name: Test with Pytest
       run: |
         pipenv run pytest
