@@ -18,12 +18,16 @@ app.include_router(task_router)
 
 
 @app.exception_handler(HTTPException)
-async def unicorn_exception_handler(
+async def http_exception_handler(
     request: Request, exc: HTTPException
 ):
     return JSONResponse(
-        status_code=500,
-        content={
-            "msg": f"Произошла ошибка на стороне сервера. Пожалуйста, попробуйте еще раз позже."
-        },
+        status_code=exc.status_code,
+        content=(
+            {"msg": exc.detail}
+            if exc.detail
+            else {
+                "msg": "Произошла ошибка на стороне сервера. Пожалуйста, попробуйте еще раз позже."
+            }
+        ),
     )
