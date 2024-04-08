@@ -2,7 +2,7 @@ name: "Auto Assign"
 on:
   - pull_request
 
-permissions: read-all
+permissions: write-all
 
 jobs:
   assign_reviewer:
