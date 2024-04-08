@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -19,3 +21,15 @@ class TaskRepository:
         self.__db_context.commit()
         self.__db_context.refresh(task)
         return task
+
+    def get_by_period(
+        self, start_date: datetime, end_date: datetime
+    ):
+        return (
+            self.__db_context.query(Task)
+            .filter(
+                Task.due_date >= start_date,
+                Task.due_date <= end_date,
+            )
+            .all()
+        )

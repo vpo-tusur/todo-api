@@ -1,4 +1,12 @@
-from fastapi import APIRouter, Depends, status
+from typing import List
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    status,
+)
 
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
@@ -22,3 +30,27 @@ async def create(
     task_service: TaskService = Depends(),
 ):
     return task_service.create(task)
+
+
+@task_router.get(
+    "/",
+    response_model=List[TaskSchema],
+    status_code=status.HTTP_200_OK,
+)
+async def get_tasks(
+    start_date: int = Query(
+        ...,
+        description="Начальная дата в формате UNIX timestamp",
+    ),
+    end_date: int = Query(
+        ...,
+        description="Конечная дата в формате UNIX timestamp",
+    ),
+    task_service: TaskService = Depends(),
+):
+    try:
+        return await task_service.get_tasks_by_period(
+            start_date, end_date
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
