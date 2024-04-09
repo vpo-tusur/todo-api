@@ -38,3 +38,10 @@ class TaskPostRequestSchema(BaseModel):
 
 class TaskSchema(TaskPostRequestSchema):
     id: int
+
+
+class TaskResponseSchema(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    due_date: Optional[date] = None

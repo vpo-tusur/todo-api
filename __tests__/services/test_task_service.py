@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from unittest import IsolatedAsyncioTestCase, TestCase
 from unittest.mock import create_autospec, patch
 
@@ -10,11 +10,7 @@ from repositories.task_repository import TaskRepository
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
 )
-from services.task_service import (
-    MAX_TIMESTAMP,
-    MIN_TIMESTAMP,
-    TaskService,
-)
+from services.task_service import TaskService
 
 
 class TestTaskService(TestCase):
@@ -148,106 +144,112 @@ class TestTaskServiceGetTasksByPeriod(
 
     async def test_get_tasks_by_period_valid(self):
         # arrange
-        start_date = datetime(
-            2020, 1, 1, tzinfo=timezone.utc
-        ).timestamp()
-        end_date = datetime(
-            2020, 1, 31, tzinfo=timezone.utc
-        ).timestamp()
+        start_date = "2020-01-01"
+        end_date = "2020-01-31"
         tasks = [
             Task(
                 id=1,
                 title="Task 1",
                 description="Description 1",
-                due_date=datetime(
-                    2020, 1, 15, tzinfo=timezone.utc
-                ),
+                due_date=date(2020, 1, 15),
             ),
             Task(
                 id=2,
                 title="Task 2",
                 description="Description 2",
-                due_date=datetime(
-                    2020, 1, 20, tzinfo=timezone.utc
-                ),
+                due_date=date(2020, 1, 20),
             ),
         ]
         self.task_repository.get_by_period.return_value = (
             tasks
         )
 
+        # act
         result = (
             await self.task_service.get_tasks_by_period(
                 start_date, end_date
             )
         )
 
-        # act & assert
+        # assert
         self.task_repository.get_by_period.assert_called_once_with(
-            datetime.fromtimestamp(
-                start_date, timezone.utc
-            ),
-            datetime.fromtimestamp(end_date, timezone.utc),
+            date(2020, 1, 1), date(2020, 1, 31)
         )
         self.assertEqual(result, tasks)
 
-    async def test_get_tasks_by_period_invalid_start_date(
+    async def test_get_tasks_by_period_incorrect_format(
         self,
     ):
         # arrange
-        start_date = (
-            MIN_TIMESTAMP - 10
-        )  # invalid start date
-        end_date = datetime(
-            2020, 1, 31, tzinfo=timezone.utc
-        ).timestamp()
+        start_date = "не дата"  # Некорректный формат
+        end_date = "2020-01-31"
 
         # act & assert
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             await self.task_service.get_tasks_by_period(
                 start_date, end_date
             )
-        self.assertIn(
-            "start_date вне допустимого диапазона",
-            str(context.exception),
-        )
-
-    async def test_get_tasks_by_period_invalid_end_date(
-        self,
-    ):
-        # arrange
-        end_date = MAX_TIMESTAMP + 10  # invalid end date
-        start_date = datetime(
-            2020, 1, 1, tzinfo=timezone.utc
-        ).timestamp()
-
-        # act & assert
-        with self.assertRaises(ValueError) as context:
-            await self.task_service.get_tasks_by_period(
-                start_date, end_date
-            )
-        self.assertIn(
-            "end_date вне допустимого диапазона",
-            str(context.exception),
-        )
 
     async def test_get_tasks_by_period_start_date_greater_than_end_date(
         self,
     ):
         # arrange
-        start_date = datetime(
-            2020, 2, 1, tzinfo=timezone.utc
-        ).timestamp()
-        end_date = datetime(
-            2020, 1, 1, tzinfo=timezone.utc
-        ).timestamp()
+        start_date = "2020-02-01"
+        end_date = "2020-01-01"
 
         # act & assert
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             await self.task_service.get_tasks_by_period(
                 start_date, end_date
             )
-        self.assertIn(
-            "start_date должна быть меньше end_date",
-            str(context.exception),
+
+    async def test_get_tasks_by_period_empty_range(self):
+        # arrange
+        start_date = "2020-01-01"
+        end_date = (
+            "2020-01-01"  # Та же дата, что и start_date
         )
+        self.task_repository.get_by_period.return_value = []
+
+        # act
+        result = (
+            await self.task_service.get_tasks_by_period(
+                start_date, end_date
+            )
+        )
+
+        # assert
+        self.task_repository.get_by_period.assert_called_once_with(
+            date(2020, 1, 1), date(2020, 1, 1)
+        )
+        self.assertEqual(result, [])
+
+    async def test_get_tasks_by_period_invalid_date(self):
+        # arrange
+        start_date = "2020-02-30"  # Невалидная дата
+        end_date = "2020-03-01"
+
+        # act & assert
+        with self.assertRaises(ValueError):
+            await self.task_service.get_tasks_by_period(
+                start_date, end_date
+            )
+
+    async def test_get_tasks_by_period_no_tasks_found(self):
+        # arrange
+        start_date = "1984-01-01"
+        end_date = "1984-01-31"
+        self.task_repository.get_by_period.return_value = []
+
+        # act
+        result = (
+            await self.task_service.get_tasks_by_period(
+                start_date, end_date
+            )
+        )
+
+        # assert
+        self.task_repository.get_by_period.assert_called_once_with(
+            date(1984, 1, 1), date(1984, 1, 31)
+        )
+        self.assertEqual(result, [])
