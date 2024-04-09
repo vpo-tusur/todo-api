@@ -10,6 +10,7 @@ from fastapi import (
 
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
+    TaskResponseSchema,
     TaskSchema,
 )
 from services.task_service import TaskService
@@ -34,23 +35,24 @@ async def create(
 
 @task_router.get(
     "/",
-    response_model=List[TaskSchema],
+    response_model=List[TaskResponseSchema],
     status_code=status.HTTP_200_OK,
 )
 async def get_tasks(
-    start_date: int = Query(
+    start_date: str = Query(
         ...,
-        description="Начальная дата в формате UNIX timestamp",
+        description="Начальная дата в формате даты (гггг-мм-дд)",
     ),
-    end_date: int = Query(
+    end_date: str = Query(
         ...,
-        description="Конечная дата в формате UNIX timestamp",
+        description="Конечная дата в формате даты (гггг-мм-дд)",
     ),
     task_service: TaskService = Depends(),
 ):
     try:
-        return await task_service.get_tasks_by_period(
+        tasks = await task_service.get_tasks_by_period(
             start_date, end_date
         )
+        return tasks
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))

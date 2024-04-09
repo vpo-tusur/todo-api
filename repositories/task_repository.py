@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import date
+from typing import List
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -23,8 +24,8 @@ class TaskRepository:
         return task
 
     def get_by_period(
-        self, start_date: datetime, end_date: datetime
-    ):
+        self, start_date: date, end_date: date
+    ) -> List[Task]:
         return (
             self.__db_context.query(Task)
             .filter(
