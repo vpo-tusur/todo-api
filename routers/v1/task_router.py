@@ -67,7 +67,6 @@ async def get_tasks(
     response_model=TaskPutRequestSchema,
     status_code=status.HTTP_200_OK,
 )
-@task_router.put("/{task_id}")
 async def update(
     task_id: int,
     task: TaskPutRequestSchema,
