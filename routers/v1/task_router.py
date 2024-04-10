@@ -7,9 +7,11 @@ from fastapi import (
     Query,
     status,
 )
+from fastapi.responses import JSONResponse
 
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
+    TaskPutRequestSchema,
     TaskResponseSchema,
     TaskSchema,
 )
@@ -56,3 +58,16 @@ async def get_tasks(
         return tasks
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
+
+
+@task_router.put("/{task_id}")
+async def update(
+    task_id: int,
+    task: TaskPutRequestSchema,
+    task_service: TaskService = Depends(),
+):
+    response = task_service.update(task_id, task)
+    return JSONResponse(
+        content=response.content,
+        status_code=response.status,
+    )
