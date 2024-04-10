@@ -7,7 +7,6 @@ from fastapi import (
     Query,
     status,
 )
-from fastapi.responses import JSONResponse
 
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
@@ -66,8 +65,13 @@ async def update(
     task: TaskPutRequestSchema,
     task_service: TaskService = Depends(),
 ):
-    response = task_service.update(task_id, task)
-    return JSONResponse(
-        content=response.content,
-        status_code=response.status,
-    )
+    try:
+        upd_task = task_service.update(task_id, task)
+        if not upd_task:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Задача по идентификатору '{task_id}' не найдена",
+            )
+        return upd_task
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))

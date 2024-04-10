@@ -7,7 +7,6 @@ from fastapi import Depends
 from models.task_model import Task
 from repositories.task_repository import TaskRepository
 from schemas.pydantic.task_schema import (
-    ServiceResponse,
     TaskPostRequestSchema,
     TaskPutRequestSchema,
 )
@@ -36,7 +35,7 @@ class TaskService:
         self,
         task_id: int,
         task_content: TaskPutRequestSchema,
-    ) -> ServiceResponse:
+    ) -> Task:
         return self.__task_repository.update(
             Task(
                 id=task_id,
