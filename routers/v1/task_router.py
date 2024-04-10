@@ -59,7 +59,11 @@ async def get_tasks(
         raise HTTPException(status_code=422, detail=str(e))
 
 
-@task_router.put("/{task_id}")
+@task_router.put(
+    "/{task_id}",
+    response_model=TaskPutRequestSchema,
+    status_code=status.HTTP_200_OK,
+)
 async def update(
     task_id: int,
     task: TaskPutRequestSchema,
