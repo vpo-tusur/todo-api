@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any, Dict, Optional, Union
+from typing import Optional
 
 from typing_extensions import Annotated
 
@@ -82,7 +82,7 @@ class TaskPutRequestSchema(BaseModel):
 
     @field_validator("due_date")
     @classmethod
-    def validate_dob(cls, v: date) -> date:
+    def validate_date(cls, v: date) -> date:
         if v < date.today():
             raise ValueError(
                 f"Date should be greater or equal than {date.today()}"
@@ -99,13 +99,3 @@ class TaskResponseSchema(BaseModel):
     title: str
     description: Optional[str] = None
     due_date: Optional[date] = None
-
-
-class ServiceResponse(BaseModel):
-    content: Union[
-        Dict[str, Any],
-        Annotated[str, StringConstraints(min_length=1)],
-    ] = Field(description="Контент ответа")
-    status: Annotated[int, Annotated[int, Field(gt=0)]] = (
-        Field(description="Статус ответа")
-    )
