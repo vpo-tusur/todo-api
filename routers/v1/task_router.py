@@ -8,6 +8,9 @@ from fastapi import (
     status,
 )
 
+from repositories.task_repository import (
+    TaskNotFoundException,
+)
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
     TaskPutRequestSchema,
@@ -70,12 +73,8 @@ async def update(
     task_service: TaskService = Depends(),
 ):
     try:
-        upd_task = task_service.update(task_id, task)
-        if not upd_task:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Задача по идентификатору '{task_id}' не найдена",
-            )
-        return upd_task
+        return task_service.update(task_id, task)
+    except TaskNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
