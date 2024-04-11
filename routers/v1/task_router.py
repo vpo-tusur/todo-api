@@ -8,8 +8,12 @@ from fastapi import (
     status,
 )
 
+from repositories.task_repository import (
+    TaskNotFoundException,
+)
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
+    TaskPutRequestSchema,
     TaskResponseSchema,
     TaskSchema,
 )
@@ -54,5 +58,23 @@ async def get_tasks(
             start_date, end_date
         )
         return tasks
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+
+@task_router.put(
+    "/{task_id}",
+    response_model=TaskPutRequestSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def update(
+    task_id: int,
+    task: TaskPutRequestSchema,
+    task_service: TaskService = Depends(),
+):
+    try:
+        return task_service.update(task_id, task)
+    except TaskNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))

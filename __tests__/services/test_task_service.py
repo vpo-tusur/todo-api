@@ -43,6 +43,51 @@ class TestTaskService(TestCase):
         # assert - должно инициализироваться создание task репозиторием
         self.__task_repository.create.assert_called_once()
 
+    @patch(
+        "schemas.pydantic.task_schema.TaskPostRequestSchema",
+        autospec=True,
+    )
+    def test_update(self, TaskPostRequestSchema):
+        # arrange
+        task = TaskPostRequestSchema()
+        task.title = "title"
+        task.description = "description"
+        task.due_date = date.today()
+
+        # act
+        self.__task_service.update(1, task)
+
+        # assert - должно инициализироваться создание task репозиторием
+        self.__task_repository.update.assert_called_once()
+
+    def test_update__no_title__should_validation_error(
+        self,
+    ):
+        # act
+        with pytest.raises(ValidationError):
+            TaskPostRequestSchema()
+
+    def test_update__empty_title__should_validation_error(
+        self,
+    ):
+        # act
+        with pytest.raises(ValidationError):
+            TaskPostRequestSchema(title="")
+
+    def test_update__empty_description__should_validation_error(
+        self,
+    ):
+        # act
+        with pytest.raises(ValidationError):
+            TaskPostRequestSchema(description="")
+
+    def test_update__empty_date__should_validation_error(
+        self,
+    ):
+        # act
+        with pytest.raises(ValidationError):
+            TaskPostRequestSchema(due_date="")
+
     def test_create__no_title__should_validation_error(
         self,
     ):
