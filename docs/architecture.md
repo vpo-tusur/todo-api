@@ -6,22 +6,17 @@
 
 https://pipenv.pypa.io/en/latest/
 
-Установка Pipenv:
+- Восстановление зависимостей проекта (в том числе dev):
 ```shell
-$ pip install --user pipenv
+$ pipenv sync --dev
 ```
 
-Восстановление зависимостей проекта (в том числе dev):
-```shell
-$ pipenv install --dev
-```
-
-Установка новой зависимости:
+- Установка новой зависимости:
 ```shell
 $ pipenv install <dependency>
 ```
 
-Удаление зависимости:
+- Удаление зависимости:
 ```shell
 $ pipenv uninstall <dependency>
 ```
@@ -31,9 +26,9 @@ $ pipenv uninstall <dependency>
 
 https://alembic.sqlalchemy.org/en/latest/
 
-Инициализация базы данных:
+- Инициализация базы данных:
 ```shell
-$ alembic upgrade head
+$ pipenv run upgrade-db
 ```
 
 Проверка того, что все миграции были применены к базе данных:
@@ -54,6 +49,11 @@ $ alembic revision --autogenerate -m "<comment>"
 $ pipenv run pre-commit install
 ```
 
+Запусить проверку всех файлов проекта:
+```shell
+$ pipenv run pre-commit run --all-files
+```
+
 
 ### pytest - тестирование
 
@@ -64,7 +64,7 @@ $ pipenv run pytest
 
 Сформировать отчет о покрытии кода тестами:
 ```shell
-$ pipenv run pytest --cov-report xml --cov .
+$ pipenv run coverage
 ```
 
 

@@ -1,45 +1,47 @@
-# Как внести свой вклад в проект
-
-## Установка
-
-- Установить зависимости проекта используя [Pipenv](https://pipenv.pypa.io/en/latest/):
-```shell
-$ pipenv install --dev
-```
-
-- Установить precommit-хуки:
-```shell
-$ pipenv run pre-commit
-$ pipenv run pre-commit install
-```
-
-- Запустить сервис для разработки из командной строки:
-```shell
-$ pipenv run uvicorn main:app --reload
-```
-
-- Запустить интерпретатор python в virtual environment проекта:
-```shell
-$ pipenv shell
-```
-
-- Открыть `localhost:8000/docs` для доступа к документации API.
-
 > Примечание: если не удается вызвать `pipenv` из командной строки, замените вызовы `pipenv` на `python3 -m pipenv`
 
-## Запуск тестов
+# Как внести свой вклад в проект
+
+## Подготовка
+
+1. Установить систему сборки проекта [Pipenv](https://pipenv.pypa.io/en/latest/).
+2. Восстановить зависимости проекта:
+```shell
+$ pipenv sync --dev
+```
+3. Установить хуки pre-commit:
+```shell
+$ pipenv run pre-commit install
+```
+4. Восстановить миграции БД:
+```shell
+$ pipenv run upgrade-db
+```
+5. Запустить сервис:
+```shell
+$ pipenv run start-dev
+```
+
+### Проверка установки
+
+Запущенный сервис готов отображать страницу документации API - swagger:
+```
+localhost:8000/docs
+```
+И готов исполнять имеющиеся эндпоинты.
+
+## Запуск автоматических тестов
 
 - Запустить тесты:
 ```shell
 $ pipenv run pytest
 ```
-
 - Сформировать отчет о покрытии кода тестами:
 ```shell
-$ pipenv run pytest --cov-report xml --cov .
+$ pipenv run coverage
 ```
 
-## Работа с ветками
+## Правила работы с ветками
 
 ### Фиче-ветки
 
@@ -65,3 +67,9 @@ $ pipenv run pytest --cov-report xml --cov .
 Примеры:
 - `[25] Инициализирована базовая структура сервера`
 - `[14] Создан репозиторий задач`
+
+### Pull-Requests (PR)
+
+- PR создается только для разработческих веток `develop*`.
+- PR именуется в соотвествии со схемой именования коммитов.
+- В качестве ревьюверов обязательно добавляется  команда `vpo-tusur/developers`.
