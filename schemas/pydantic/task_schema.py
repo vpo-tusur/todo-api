@@ -28,7 +28,34 @@ class TaskPostRequestSchema(BaseModel):
 
     @field_validator("due_date")
     @classmethod
-    def validate_dob(cls, v: date) -> date:
+    def validate_date(cls, v: date) -> date:
+        if v < date.today():
+            raise ValueError(
+                f"Date should be greater or equal than {date.today()}"
+            )
+        return v
+
+
+class TaskPutRequestSchema(BaseModel):
+    title: Annotated[
+        str,
+        StringConstraints(
+            strip_whitespace=True, min_length=1
+        ),
+    ] = Field(description="Название задачи")
+    description: Annotated[
+        Optional[str],
+        StringConstraints(
+            strip_whitespace=True, min_length=1
+        ),
+    ] = Field(description="Описание задачи")
+    due_date: Optional[date] = Field(
+        description="День задачи", default=date.today()
+    )
+
+    @field_validator("due_date")
+    @classmethod
+    def validate_date(cls, v: date) -> date:
         if v < date.today():
             raise ValueError(
                 f"Date should be greater or equal than {date.today()}"
@@ -38,3 +65,10 @@ class TaskPostRequestSchema(BaseModel):
 
 class TaskSchema(TaskPostRequestSchema):
     id: int
+
+
+class TaskResponseSchema(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    due_date: Optional[date] = None

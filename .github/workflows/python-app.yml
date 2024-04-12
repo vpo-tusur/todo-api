@@ -25,7 +25,7 @@ jobs:
       run: |
         python -m pip install pip
         pip install --user pipenv
-        pipenv install --dev
+        pipenv sync --dev
     - name: Lint checks
       run: |
         pipenv run pre-commit run --all-files

@@ -3,12 +3,18 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[scripts]
+upgrade-db = "pipenv run alembic upgrade head"
+start-dev = "pipenv run uvicorn main:app --reload"
+coverage = "pipenv run pytest --cov ."
+
 [packages]
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 sqlalchemy = "*"
 pydantic = "*"
 alembic = "*"
+python-dateutil = "*"
 
 [dev-packages]
 black = "*"
