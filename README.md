@@ -27,7 +27,7 @@ $ docker run --publish 8000:8000 ghcr.io/vpo-tusur/todo-api:latest
 ```shell
 # Сборка и запуск сервиса средствами docker
 $ docker build -t todo-api . --file Dockerfile
-$ docker run todo-api --publish 8000:8000 todo-api
+$ docker run --publish 8000:8000 todo-api
 
 # Сборка и запуск средствами docker compose
 $ docker compose up --build
@@ -37,7 +37,7 @@ $ docker compose up --build
 Запущенный сервис готов отображать страницу документации API - swagger, redoc:
 ```
 localhost:8000/docs
-localhost:8000/redock
+localhost:8000/redoc
 ```
 И готов исполнять имеющиеся эндпоинты.
 
