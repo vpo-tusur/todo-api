@@ -7,7 +7,6 @@ on:
       - develop
     tags:
       - v*
-  pull_request:
 
 env:
   IMAGE_NAME: todo-api
