@@ -45,9 +45,7 @@ class TaskPutRequestSchema(BaseModel):
     ] = Field(description="Название задачи")
     description: Annotated[
         Optional[str],
-        StringConstraints(
-            strip_whitespace=True
-        ),
+        StringConstraints(strip_whitespace=True),
     ] = Field(description="Описание задачи", default="")
     due_date: Optional[date] = Field(
         description="День задачи", default=date.today()
