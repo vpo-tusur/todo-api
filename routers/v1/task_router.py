@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import (
     APIRouter,
@@ -43,23 +43,50 @@ async def create(
     status_code=status.HTTP_200_OK,
 )
 async def get_tasks(
-    start_date: str = Query(
-        ...,
-        description="Начальная дата в формате даты (гггг-мм-дд)",
+    date: Optional[str] = Query(
+        None, description="Дата в формате (гггг-мм-дд)"
     ),
-    end_date: str = Query(
-        ...,
-        description="Конечная дата в формате даты (гггг-мм-дд)",
+    start_date: Optional[str] = Query(
+        None,
+        description="Начальная дата в формате (гггг-мм-дд)",
+    ),
+    end_date: Optional[str] = Query(
+        None,
+        description="Конечная дата в формате (гггг-мм-дд)",
     ),
     task_service: TaskService = Depends(),
 ):
     try:
-        tasks = await task_service.get_tasks_by_period(
-            start_date, end_date
-        )
+        tasks = []
+        if date is not None and (
+            start_date is not None or end_date is not None
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Запрос не может одновременно содержать 'date' и 'start_date'/'end_date'. "
+                "Пожалуйста, укажите только один из этих параметров.",
+            )
+        if date is not None:
+            tasks = await task_service.get_tasks_by_date(
+                date
+            )
+        elif (
+            start_date is not None and end_date is not None
+        ):
+            tasks = await task_service.get_tasks_by_period(
+                start_date, end_date
+            )
+        else:
+            tasks = await task_service.get_tasks_by_date(
+                None
+            )
+
         return tasks
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail={"msg": "Некорректный формат даты."},
+        )
 
 
 @task_router.put(
