@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List
+from typing import List, Optional
 
 from dateutil import parser, tz
 from fastapi import Depends
@@ -55,6 +55,18 @@ class TaskService:
         return self.__task_repository.get_by_period(
             start_date, end_date
         )
+
+    async def get_tasks_by_date(
+        self, date_str: Optional[str]
+    ) -> List[Task]:
+        if date_str is None:
+            date_str = date.today().isoformat()
+        target_date = parse_date(date_str)
+
+        tasks = self.__task_repository.get_by_period(
+            target_date, target_date
+        )
+        return tasks
 
 
 def parse_date(date_str: str) -> date:
