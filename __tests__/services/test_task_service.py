@@ -10,7 +10,7 @@ from repositories.task_repository import TaskRepository
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
 )
-from services.task_service import TaskService
+from services.task_service import TaskService, parse_date
 
 
 class TestTaskService(TestCase):
@@ -382,3 +382,126 @@ class TestTaskGetService(IsolatedAsyncioTestCase):
             date(1984, 1, 1), date(1984, 1, 1)
         )
         self.assertEqual(result, [])
+
+    async def test_get_tasks_for_week_valid(self):
+        # arrange
+        input_date = "2020-01-01"
+        expected_start_date = date(2020, 1, 1)
+        expected_end_date = date(2020, 1, 7)
+        tasks = [
+            Task(
+                id=1,
+                title="Task 1",
+                description="Description 1",
+                due_date=date(2020, 1, 3),
+            ),
+            Task(
+                id=2,
+                title="Task 2",
+                description="Description 2",
+                due_date=date(2020, 1, 6),
+            ),
+        ]
+        self.task_repository.get_by_period.return_value = (
+            tasks
+        )
+
+        # act
+        result = await self.task_service.get_tasks_for_week(
+            input_date
+        )
+
+        # assert
+        self.task_repository.get_by_period.assert_called_once_with(
+            expected_start_date, expected_end_date
+        )
+        self.assertEqual(result, tasks)
+
+    async def test_get_tasks_for_week_invalid_date_format(
+        self,
+    ):
+        # arrange
+        input_date = "not-a-date"
+
+        # act & assert
+        with self.assertRaises(ValueError):
+            await self.task_service.get_tasks_for_week(
+                input_date
+            )
+
+    async def test_get_tasks_for_week_no_tasks_found(self):
+        # arrange
+        input_date = "2020-02-01"
+        expected_start_date = date(2020, 2, 1)
+        expected_end_date = date(2020, 2, 7)
+        self.task_repository.get_by_period.return_value = []
+
+        # act
+        result = await self.task_service.get_tasks_for_week(
+            input_date
+        )
+
+        # assert
+        self.task_repository.get_by_period.assert_called_once_with(
+            expected_start_date, expected_end_date
+        )
+        self.assertEqual(result, [])
+
+    async def test_get_tasks_for_week_boundary_conditions(
+        self,
+    ):
+        # Даты испытаний, которые находятся на границе месяцев и лет
+        test_dates = [
+            "2020-12-31",
+            "2020-01-01",
+            "2020-02-28",
+        ]
+        for input_date in test_dates:
+            start_date = parse_date(input_date)
+            end_date = start_date + timedelta(days=6)
+
+            with self.subTest(input_date=input_date):
+                self.task_repository.get_by_period.return_value = (
+                    []
+                )
+                result = await self.task_service.get_tasks_for_week(
+                    input_date
+                )
+                self.task_repository.get_by_period.assert_called_with(
+                    start_date, end_date
+                )
+                self.assertEqual(result, [])
+
+    async def test_get_tasks_for_week_future_date(self):
+        # arrange
+        input_date = "2030-01-01"  # Будущая дата
+        expected_start_date = date(2030, 1, 1)
+        expected_end_date = date(2030, 1, 7)
+        tasks = [
+            Task(
+                id=1,
+                title="Future Task 1",
+                description="Future Description 1",
+                due_date=date(2030, 1, 3),
+            ),
+            Task(
+                id=2,
+                title="Future Task 2",
+                description="Future Description 2",
+                due_date=date(2030, 1, 6),
+            ),
+        ]
+        self.task_repository.get_by_period.return_value = (
+            tasks
+        )
+
+        # act
+        result = await self.task_service.get_tasks_for_week(
+            input_date
+        )
+
+        # assert
+        self.task_repository.get_by_period.assert_called_once_with(
+            expected_start_date, expected_end_date
+        )
+        self.assertEqual(result, tasks)

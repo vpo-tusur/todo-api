@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from typing import List, Optional
 
 from dateutil import parser, tz
@@ -67,6 +67,16 @@ class TaskService:
             target_date, target_date
         )
         return tasks
+
+    async def get_tasks_for_week(
+        self, date_str: str
+    ) -> List[Task]:
+        start_date = parse_date(date_str)
+        end_date = start_date + timedelta(days=6)
+
+        return await self.get_tasks_by_period(
+            start_date.isoformat(), end_date.isoformat()
+        )
 
 
 def parse_date(date_str: str) -> date:
