@@ -54,10 +54,13 @@ async def get_tasks(
         None,
         description="Конечная дата в формате (гггг-мм-дд)",
     ),
+    week: Optional[bool] = Query(
+        None,
+        description="Если True, возвращает задачи за неделю начиная с указанной date.",
+    ),
     task_service: TaskService = Depends(),
 ):
     try:
-        tasks = []
         if date is not None and (
             start_date is not None or end_date is not None
         ):
@@ -66,22 +69,23 @@ async def get_tasks(
                 detail="Запрос не может одновременно содержать 'date' и 'start_date'/'end_date'. "
                 "Пожалуйста, укажите только один из этих параметров.",
             )
-        if date is not None:
-            tasks = await task_service.get_tasks_by_date(
+
+        if week and date:
+            return await task_service.get_tasks_for_week(
                 date
             )
-        elif (
-            start_date is not None and end_date is not None
-        ):
-            tasks = await task_service.get_tasks_by_period(
+        elif date:
+            return await task_service.get_tasks_by_date(
+                date
+            )
+        elif start_date and end_date:
+            return await task_service.get_tasks_by_period(
                 start_date, end_date
             )
         else:
-            tasks = await task_service.get_tasks_by_date(
+            return await task_service.get_tasks_by_date(
                 None
             )
-
-        return tasks
     except ValueError:
         raise HTTPException(
             status_code=422,
