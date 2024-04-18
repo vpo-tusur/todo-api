@@ -8,9 +8,6 @@ from fastapi import (
     status,
 )
 
-from repositories.task_repository import (
-    TaskNotFoundException,
-)
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
     TaskPutRequestSchema,
@@ -105,7 +102,14 @@ async def update(
 ):
     try:
         return task_service.update(task_id, task)
-    except TaskNotFoundException as e:
-        raise HTTPException(status_code=404, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
+
+
+@task_router.delete(
+    "/{task_id}", status_code=status.HTTP_200_OK
+)
+async def delete(
+    task_id: int, task_service: TaskService = Depends()
+) -> None:
+    task_service.delete(task_id)

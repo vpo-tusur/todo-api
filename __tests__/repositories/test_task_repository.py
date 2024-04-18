@@ -31,6 +31,21 @@ class TestTaskRepository(TestCase):
         self.__session.add.assert_called_once_with(task)
 
     @patch("models.task_model.Task", autospec=True)
+    def test_delete__should_get_called(self, mock_task):
+        # arrange
+        task_id = 1
+        task = mock_task(id=task_id)
+
+        # act
+        self.__task_repository.delete(task_id)
+
+        # assert
+        self.__session.query(
+            Task
+        ).get.assert_called_once_with(task_id)
+        self.__session.delete.assert_called_once()
+
+    @patch("models.task_model.Task", autospec=True)
     def test_get_by_period(self, mock_task):
         # arrange
         start_date = date(2023, 1, 1)
