@@ -9,7 +9,10 @@ from models.task_model import Task
 
 
 class TaskNotFoundException(Exception):
-    pass
+    def __init__(self, task_id: int):
+        self.task_id = task_id
+        self.message = f"Задача по идентификатору '{task_id}' не найдена"
+        super().__init__(self.message)
 
 
 class TaskRepository:
@@ -27,6 +30,16 @@ class TaskRepository:
         self.__db_context.refresh(task)
         return task
 
+    def delete(self, task_id: int) -> Task:
+        task = self.__db_context.query(Task).get(task_id)
+
+        if task is None:
+            raise TaskNotFoundException(task_id)
+
+        self.__db_context.delete(task)
+        self.__db_context.commit()
+        return task
+
     def get_by_period(
         self, start_date: date, end_date: date
     ) -> List[Task]:
@@ -40,18 +53,11 @@ class TaskRepository:
         )
 
     def update(self, task: Task) -> Task:
-        db_tasks = (
-            self.__db_context.query(Task)
-            .filter(Task.id == task.id)
-            .all()
-        )
+        db_task = self.__db_context.query(Task).get(task.id)
 
-        if len(db_tasks) < 1:
-            raise TaskNotFoundException(
-                f"Задача по идентификатору '{task.id}' не найдена"
-            )
+        if db_task is None:
+            raise TaskNotFoundException(task.id)
 
-        db_task = db_tasks[0]
         db_task.title = task.title
         db_task.description = task.description
         db_task.due_date = task.due_date

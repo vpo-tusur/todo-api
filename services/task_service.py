@@ -45,6 +45,9 @@ class TaskService:
             )
         )
 
+    def delete(self, task_id: int) -> Task:
+        return self.__task_repository.delete(task_id)
+
     async def get_tasks_by_period(
         self, start_date_str: str, end_date_str: str
     ) -> List[Task]:
