@@ -71,6 +71,10 @@ async def get_tasks(
             return await task_service.get_tasks_for_week(
                 date
             )
+        elif week and date is None:
+            return await task_service.get_tasks_for_week(
+                None
+            )
         elif date:
             return await task_service.get_tasks_by_date(
                 date
