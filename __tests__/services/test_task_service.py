@@ -505,3 +505,37 @@ class TestTaskGetService(IsolatedAsyncioTestCase):
             expected_start_date, expected_end_date
         )
         self.assertEqual(result, tasks)
+
+    async def test_get_tasks_for_week_none_date(self):
+        # arrange
+        today = date.today()
+        expected_start_date = today
+        expected_end_date = today + timedelta(days=6)
+        tasks = [
+            Task(
+                id=1,
+                title="Task Today",
+                description="Description Today",
+                due_date=today + timedelta(days=1),
+            ),
+            Task(
+                id=2,
+                title="Task This Week",
+                description="Description This Week",
+                due_date=today + timedelta(days=5),
+            ),
+        ]
+        self.task_repository.get_by_period.return_value = (
+            tasks
+        )
+
+        # act
+        result = await self.task_service.get_tasks_for_week(
+            None
+        )
+
+        # assert
+        self.task_repository.get_by_period.assert_called_once_with(
+            expected_start_date, expected_end_date
+        )
+        self.assertEqual(result, tasks)

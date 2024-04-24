@@ -49,7 +49,9 @@ class TaskService:
         return self.__task_repository.delete(task_id)
 
     async def get_tasks_by_period(
-        self, start_date_str: str, end_date_str: str
+        self,
+        start_date_str: Optional[str],
+        end_date_str: Optional[str],
     ) -> List[Task]:
         start_date = parse_date(start_date_str)
         end_date = parse_date(end_date_str)
@@ -72,8 +74,10 @@ class TaskService:
         return tasks
 
     async def get_tasks_for_week(
-        self, date_str: str
+        self, date_str: Optional[str]
     ) -> List[Task]:
+        if date_str is None:
+            date_str = date.today().isoformat()
         start_date = parse_date(date_str)
         end_date = start_date + timedelta(days=6)
 
