@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import (
     APIRouter,
@@ -8,9 +8,6 @@ from fastapi import (
     status,
 )
 
-from repositories.task_repository import (
-    TaskNotFoundException,
-)
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
     TaskPutRequestSchema,
@@ -43,23 +40,58 @@ async def create(
     status_code=status.HTTP_200_OK,
 )
 async def get_tasks(
-    start_date: str = Query(
-        ...,
-        description="Начальная дата в формате даты (гггг-мм-дд)",
+    date: Optional[str] = Query(
+        None, description="Дата в формате (гггг-мм-дд)"
     ),
-    end_date: str = Query(
-        ...,
-        description="Конечная дата в формате даты (гггг-мм-дд)",
+    start_date: Optional[str] = Query(
+        None,
+        description="Начальная дата в формате (гггг-мм-дд)",
+    ),
+    end_date: Optional[str] = Query(
+        None,
+        description="Конечная дата в формате (гггг-мм-дд)",
+    ),
+    week: Optional[bool] = Query(
+        None,
+        description="Если True, возвращает задачи за неделю начиная с указанной date.",
     ),
     task_service: TaskService = Depends(),
 ):
     try:
-        tasks = await task_service.get_tasks_by_period(
-            start_date, end_date
+        if date is not None and (
+            start_date is not None or end_date is not None
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Запрос не может одновременно содержать 'date' и 'start_date'/'end_date'. "
+                "Пожалуйста, укажите только один из этих параметров.",
+            )
+
+        if week and date:
+            return await task_service.get_tasks_for_week(
+                date
+            )
+        elif week and date is None:
+            return await task_service.get_tasks_for_week(
+                None
+            )
+        elif date:
+            return await task_service.get_tasks_by_date(
+                date
+            )
+        elif start_date and end_date:
+            return await task_service.get_tasks_by_period(
+                start_date, end_date
+            )
+        else:
+            return await task_service.get_tasks_by_date(
+                None
+            )
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail={"msg": "Некорректный формат даты."},
         )
-        return tasks
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
 
 
 @task_router.put(
@@ -74,7 +106,14 @@ async def update(
 ):
     try:
         return task_service.update(task_id, task)
-    except TaskNotFoundException as e:
-        raise HTTPException(status_code=404, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
+
+
+@task_router.delete(
+    "/{task_id}", status_code=status.HTTP_200_OK
+)
+async def delete(
+    task_id: int, task_service: TaskService = Depends()
+) -> None:
+    task_service.delete(task_id)
