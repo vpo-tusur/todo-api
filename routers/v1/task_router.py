@@ -58,6 +58,7 @@ async def get_tasks(
     task_service: TaskService = Depends(),
 ):
     try:
+        # Проверка на наличие одновременно 'date' и 'start_date'/'end_date'
         if date is not None and (
             start_date is not None or end_date is not None
         ):
@@ -67,6 +68,31 @@ async def get_tasks(
                 "Пожалуйста, укажите только один из этих параметров.",
             )
 
+        # Проверка на наличие одновременно 'week' и 'start_date'/'end_date'
+        if week and (
+            start_date is not None or end_date is not None
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Запрос не может одновременно содержать 'week' и 'start_date'/'end_date'. "
+                "Пожалуйста, укажите только один из этих параметров.",
+            )
+
+        # Проверка, что 'end_date' не может быть передан без 'start_date'
+        if end_date and not start_date:
+            raise HTTPException(
+                status_code=422,
+                detail="Поле 'start_date' обязательно при наличии 'end_date'.",
+            )
+
+        # Проверка, что 'start_date' не может быть передан без 'end_date'
+        if start_date and not end_date:
+            raise HTTPException(
+                status_code=422,
+                detail="Поле 'end_date' обязательно при наличии 'start_date'.",
+            )
+
+        # Логика обработки запросов
         if week and date:
             return await task_service.get_tasks_for_week(
                 date
