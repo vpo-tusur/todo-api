@@ -8,7 +8,10 @@ from fastapi import (
     status,
 )
 
+from fastapi.responses import RedirectResponse
+
 from schemas.pydantic.task_schema import (
+    TaskMultipleRequestSchema,
     TaskPostRequestSchema,
     TaskPutRequestSchema,
     TaskResponseSchema,
@@ -33,6 +36,19 @@ async def create(
 ):
     return task_service.create(task)
 
+@task_router.post(
+    "/tasks{mass}",
+    response_model=List[TaskSchema],
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_mass(mass: bool,
+        tasks: TaskMultipleRequestSchema,
+        task_service: TaskService = Depends()
+):
+    if not mass:
+        return RedirectResponse("/")
+    else:
+        return task_service.mass_crete(tasks)
 
 @task_router.get(
     "/",
