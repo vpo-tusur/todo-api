@@ -9,6 +9,7 @@ from repositories.task_repository import TaskRepository
 from schemas.pydantic.task_schema import (
     TaskPostRequestSchema,
     TaskPutRequestSchema,
+    TaskMultipleRequestSchema,
 )
 
 
@@ -30,6 +31,20 @@ class TaskService:
                 due_date=task_content.due_date,
             )
         )
+
+    def mass_crete(
+            self, tasks: TaskMultipleRequestSchema,
+    ) -> list[Task]:
+        created = []
+        for task in tasks.tasks:
+            created.append(self.__task_repository.create(
+                Task(
+                    title=task.title,
+                    description=task.description,
+                    due_date=tasks.due_date,
+                )
+            ))
+        return created
 
     def update(
         self,

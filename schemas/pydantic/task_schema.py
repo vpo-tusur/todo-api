@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 
 from typing_extensions import Annotated
 
@@ -25,6 +25,22 @@ class TaskPostRequestSchema(BaseModel):
     due_date: Optional[date] = Field(
         description="День задачи", default=date.today()
     )
+
+    @field_validator("due_date")
+    @classmethod
+    def validate_date(cls, v: date) -> date:
+        if v < date.today():
+            raise ValueError(
+                f"Date should be greater or equal than {date.today()}"
+            )
+        return v
+
+
+class TaskMultipleRequestSchema(BaseModel):
+    due_date: Optional[date] = Field(
+        description="День задачи", default=date.today()
+    ),
+    tasks: List[TaskPostRequestSchema] = Field(description="Задачи для добавления", default=None)
 
     @field_validator("due_date")
     @classmethod
